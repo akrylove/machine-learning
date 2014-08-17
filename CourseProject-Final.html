@@ -188,15 +188,11 @@ hljs.initHighlightingOnLoad();
 <p>We load the data set and split it in into training and testing sets with 60% of observations going to the training set.</p>
 
 <pre><code class="r">fileUrl &lt;- &quot;https://d396qusza40orc.cloudfront.net/predmachlearn/pml-training.csv&quot;
-file &lt;- &quot;pml-training.csv&quot;; data &lt;- read.csv(file)
+file &lt;- &quot;pml-training.csv&quot;; download.file(fileUrl,destfile=file,method=&quot;curl&quot;)
+data &lt;- read.csv(file)
+
 library(caret)
-</code></pre>
-
-<pre><code>## Loading required package: lattice
-## Loading required package: ggplot2
-</code></pre>
-
-<pre><code class="r">inTrain &lt;- createDataPartition(y=data$classe, p=0.6, list=FALSE)
+inTrain &lt;- createDataPartition(y=data$classe, p=0.6, list=FALSE)
 training &lt;- data[inTrain,]; testing &lt;- data[-inTrain,]
 </code></pre>
 
@@ -271,9 +267,7 @@ modlda = train(classe ~ .,data=training,method=&quot;lda&quot;)
 
 <pre><code class="r">moda &lt;- rbind(modrp$results[1, &quot;Accuracy&quot;], modlda$results[&quot;Accuracy&quot;])
 modk &lt;- rbind(modrp$results[1, &quot;Kappa&quot;], modlda$results[&quot;Kappa&quot;])
-modc &lt;- cbind(moda, modk)
-modc$Model &lt;- c(&quot;Rpart&quot;, &quot;LDA&quot;)
-modc
+modc &lt;- cbind(moda, modk); modc$Model &lt;- c(&quot;Rpart&quot;, &quot;LDA&quot;); modc
 </code></pre>
 
 <pre><code>##   Accuracy  Kappa Model
@@ -291,11 +285,11 @@ table(pred,testing$classe)
 
 <pre><code>##     
 ## pred    A    B    C    D    E
-##    A 2129   62   17   29    3
-##    B   17 1400   43    7   26
-##    C   42   39 1287   53    5
-##    D   41    9   17 1190   18
-##    E    3    8    4    7 1390
+##    A 2192   26    5   13    1
+##    B    9 1471   17    2   15
+##    C   15   15 1335   14    1
+##    D   14    4   10 1252   10
+##    E    2    2    1    5 1415
 </code></pre>
 
 <p>The model predicts the outcome correctly in more than 90% of the cases.  We will now predict the result of the 20-item validation test and will submit it for grading.</p>
@@ -308,7 +302,8 @@ table(pred,testing$classe)
   }
 }
 fileUrl &lt;- &quot;https://d396qusza40orc.cloudfront.net/predmachlearn/pml-testing.csv&quot;
-file &lt;- &quot;pml-testing.csv&quot;; validation &lt;- read.csv(file)
+file &lt;- &quot;pml-testing.csv&quot;; download.file(fileUrl,destfile=file,method=&quot;curl&quot;)
+validation &lt;- read.csv(file)
 answers &lt;- predict(model,validation)
 pml_write_files(answers)
 </code></pre>

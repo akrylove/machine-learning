@@ -6,16 +6,10 @@ We load the data set and split it in into training and testing sets with 60% of 
 
 ```r
 fileUrl <- "https://d396qusza40orc.cloudfront.net/predmachlearn/pml-training.csv"
-file <- "pml-training.csv"; data <- read.csv(file)
+file <- "pml-training.csv"; download.file(fileUrl,destfile=file,method="curl")
+data <- read.csv(file)
+
 library(caret)
-```
-
-```
-## Loading required package: lattice
-## Loading required package: ggplot2
-```
-
-```r
 inTrain <- createDataPartition(y=data$classe, p=0.6, list=FALSE)
 training <- data[inTrain,]; testing <- data[-inTrain,]
 ```
@@ -109,9 +103,7 @@ The Treebag and Naive Bayes methods take too long to complete, so we will not us
 ```r
 moda <- rbind(modrp$results[1, "Accuracy"], modlda$results["Accuracy"])
 modk <- rbind(modrp$results[1, "Kappa"], modlda$results["Kappa"])
-modc <- cbind(moda, modk)
-modc$Model <- c("Rpart", "LDA")
-modc
+modc <- cbind(moda, modk); modc$Model <- c("Rpart", "LDA"); modc
 ```
 
 ```
@@ -133,11 +125,11 @@ table(pred,testing$classe)
 ```
 ##     
 ## pred    A    B    C    D    E
-##    A 2129   62   17   29    3
-##    B   17 1400   43    7   26
-##    C   42   39 1287   53    5
-##    D   41    9   17 1190   18
-##    E    3    8    4    7 1390
+##    A 2192   26    5   13    1
+##    B    9 1471   17    2   15
+##    C   15   15 1335   14    1
+##    D   14    4   10 1252   10
+##    E    2    2    1    5 1415
 ```
 
 The model predicts the outcome correctly in more than 90% of the cases.  We will now predict the result of the 20-item validation test and will submit it for grading.
@@ -152,7 +144,8 @@ pml_write_files = function(x){
   }
 }
 fileUrl <- "https://d396qusza40orc.cloudfront.net/predmachlearn/pml-testing.csv"
-file <- "pml-testing.csv"; validation <- read.csv(file)
+file <- "pml-testing.csv"; download.file(fileUrl,destfile=file,method="curl")
+validation <- read.csv(file)
 answers <- predict(model,validation)
 pml_write_files(answers)
 ```

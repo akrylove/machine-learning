@@ -3,9 +3,11 @@ Find a regression model that predicts whether a dumbbell lifting exercise was pe
 
 ## Analysis
 We load the data set and split it in into training and testing sets with 60% of observations going to the training set.
-```{r echo=TRUE}
+```{r echo=TRUE, cache=TRUE}
 fileUrl <- "https://d396qusza40orc.cloudfront.net/predmachlearn/pml-training.csv"
-file <- "pml-training.csv"; data <- read.csv(file)
+file <- "pml-training.csv"; download.file(fileUrl,destfile=file,method="curl")
+data <- read.csv(file)
+
 library(caret)
 inTrain <- createDataPartition(y=data$classe, p=0.6, list=FALSE)
 training <- data[inTrain,]; testing <- data[-inTrain,]
@@ -50,16 +52,14 @@ The Treebag and Naive Bayes methods take too long to complete, so we will not us
 ```{r}
 moda <- rbind(modrp$results[1, "Accuracy"], modlda$results["Accuracy"])
 modk <- rbind(modrp$results[1, "Kappa"], modlda$results["Kappa"])
-modc <- cbind(moda, modk)
-modc$Model <- c("Rpart", "LDA")
-modc
+modc <- cbind(moda, modk); modc$Model <- c("Rpart", "LDA"); modc
 ```
 
 Recursive Partitioning (rpart) and LDA methods produce models that are much less accurate than the Random Forest model.  Rpart has the highest accuracy of 42% and LDA has 51%.  With 94% accuracy, Random Forest is the best fit model.
 
 We now run the model on the testing set and evaluate its accuracy.
 
-```{r}
+```{r cache=TRUE}
 pred <- predict(model,testing); testing$predRight <- pred==testing$classe
 table(pred,testing$classe)
 ```
@@ -75,7 +75,8 @@ pml_write_files = function(x){
   }
 }
 fileUrl <- "https://d396qusza40orc.cloudfront.net/predmachlearn/pml-testing.csv"
-file <- "pml-testing.csv"; validation <- read.csv(file)
+file <- "pml-testing.csv"; download.file(fileUrl,destfile=file,method="curl")
+validation <- read.csv(file)
 answers <- predict(model,validation)
 pml_write_files(answers)
 ```
